@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { basicSetup, minimalSetup } from 'codemirror';
+// import { basicSetup, minimalSetup } from 'codemirror';
+// import {EditorView, basicSetup} from "codemirror"
+
 import { javascript } from '@codemirror/lang-javascript';
 import { java } from '@codemirror/lang-java';
 import { autocompletion, CompletionContext, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
@@ -31,7 +33,8 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     let myEditorElement = this.myEditor.nativeElement;
-    let myExt: Extension = [basicSetup, minimalSetup, java(), oneDark, wordHover, highlightSelectionMatches(), autocompletion({ override: [this.myCompletions, this.myCompletions3] })];
+    // basicSetup, minimalSetup,
+    let myExt: Extension = [java(), oneDark, wordHover, highlightSelectionMatches(), autocompletion({ override: [this.myCompletions, this.myCompletions3] })];
     //     let state: EditorView = new EditorView();
 
     //     try {
