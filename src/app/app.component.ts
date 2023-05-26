@@ -114,7 +114,7 @@ function myCompletions(context: CompletionContext) {
     ],
   };
 }
-export const wordHover = hoverTooltip((view, pos, side) => {
+export const wordHover: Extension = hoverTooltip((view, pos, side) => {
   let { from, to, text } = view.state.doc.lineAt(pos);
   let start = pos;
   let end = pos;
@@ -129,14 +129,15 @@ export const wordHover = hoverTooltip((view, pos, side) => {
     return null;
   }
 
-  console.log('hovertooltip', view, pos, side, view.state.doc.slice(start, end));
   return {
     pos: start,
     end,
     above: true,
     create(view) {
       let dom = document.createElement('div');
-      dom.textContent = view.state.doc.slice(start, end)[0];
+      // dom.textContent = view.state.doc.slice(start, end) as unknown as string;
+      dom.textContent = view.state.doc.slice(start, end).toString();
+      console.log('hovertooltip', view, pos, side, view.state.doc.slice(start, end), dom, 'dom text=', dom.textContent, 'view0=', view.state.doc.slice(start, end));
       return { dom };
     },
   };
