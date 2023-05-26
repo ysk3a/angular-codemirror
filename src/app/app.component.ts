@@ -2,44 +2,16 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { basicSetup, minimalSetup } from 'codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { java } from '@codemirror/lang-java';
-import {
-  autocompletion,
-  CompletionContext,
-  closeBrackets,
-  closeBracketsKeymap,
-  completionKeymap,
-} from '@codemirror/autocomplete';
-import {
-  bracketMatching,
-  defaultHighlightStyle,
-  foldGutter,
-  foldKeymap,
-  indentOnInput,
-  syntaxHighlighting,
-} from '@codemirror/language';
+import { autocompletion, CompletionContext, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
+import { bracketMatching, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput, syntaxTree, syntaxHighlighting } from '@codemirror/language';
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
-import {
-  crosshairCursor,
-  drawSelection,
-  dropCursor,
-  EditorView,
-  highlightActiveLine,
-  highlightActiveLineGutter,
-  highlightSpecialChars,
-  keymap,
-  lineNumbers,
-  rectangularSelection,
-} from '@codemirror/view';
+import { crosshairCursor, drawSelection, dropCursor, EditorView, highlightActiveLine, highlightActiveLineGutter, highlightSpecialChars, keymap, lineNumbers, Tooltip, TooltipView, hoverTooltip, showTooltip, tooltips, rectangularSelection } from '@codemirror/view';
 
 import { Compartment, EditorState, Extension } from '@codemirror/state';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import {
-  oneDark,
-  oneDarkTheme,
-  oneDarkHighlightStyle,
-} from '@codemirror/theme-one-dark';
+import { oneDark, oneDarkTheme, oneDarkHighlightStyle } from '@codemirror/theme-one-dark';
 
 //https://voracious.dev/blog/how-to-build-a-code-editor-with-codemirror-6-and-typescript/introduction
 @Component({
@@ -60,12 +32,7 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     let myEditorElement = this.myEditor.nativeElement;
-    let myExt: Extension = [
-      basicSetup,
-      java(),
-      oneDark,
-      autocompletion({ override: [this.myCompletions, this.myCompletions3] }),
-    ];
+    let myExt: Extension = [basicSetup, java(), oneDark, wordHover, highlightSelectionMatches(), autocompletion({ override: [this.myCompletions, this.myCompletions3] })];
     let state!: EditorState;
 
     try {
@@ -133,3 +100,30 @@ function myCompletions(context: CompletionContext) {
     ],
   };
 }
+export const wordHover = hoverTooltip((view, pos, side) => {
+  let { from, to, text } = view.state.doc.lineAt(pos);
+  let start = pos;
+  let end = pos;
+
+  while (start > from && /\w/.test(text[start - from - 1])) {
+    start--;
+  }
+  while (end < to && /\w/.test(text[end - from])) {
+    end++;
+  }
+  if ((start === pos && side < 0) || (end === pos && side > 0)) {
+    return null;
+  }
+
+  console.log('hovertooltip', view, pos, side, view.state.doc.slice(start, end));
+  return {
+    pos: start,
+    end,
+    above: true,
+    create(view) {
+      let dom = document.createElement('div');
+      dom.textContent = view.state.doc.slice(start, end)[0];
+      return { dom };
+    },
+  };
+});
